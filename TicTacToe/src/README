@@ -1,0 +1,39 @@
+bashar.rashed
+213541097
+
+1) both CleverPlayer and GeniusPlayer use a similar strategy, but they differ in the level of cleverness:
+    which is we choose a random number, and if it's less/equal than their level of cleverness then they have
+    the chance to make a smart play: either make a winning play if there is one, or a block play if the
+    opponent has one, if there isn't any of them then play a random mark anywhere on the board,
+    and if the random number was bigger than their level of cleverness then they dont make a smart play
+    which is just a random move using the already made WhateverPlayer.
+
+2) The player classes that implement the interface Player all share the main thing that these players
+    should do, which is playing their turn, so we don't care about the implementation, only care about
+    the API in order to know what they do, since they all share it, we can use them uniformly in classes like
+    Tournament and Game without truly knowing which player type they are.
+    they follow multiple OOP principles such as:
+    - Polymorphism: since HumanPlayer,WhateverPlayer,CleverPlayer,GeniusPlayer all implement Player,
+        so they can all be treated as a Player.
+    - Abstraction: in Classes like Game and Tournament, they do not care about how each player plays
+        their turn and how, the interface they follow only tells us what we need to do and not worry
+        about implementation.
+    - Encapsulation: each player follows their own way of playing with their own strategy.
+    - Code Duplication: this is not one of the four OOP principles, but also it is one of the things
+        all of the above make sure don't happen for clearer code.
+
+3) I added 3 helper Classes:
+    -)SmartPlayerSettings: a helper class that has code that is shared by GeniusPlayer and CleverPlayer,
+        since they need to sometimes play a smart play, they have a similar strategy but different cleverness
+        level, so i extracted the shared code into a helper class since they are both smart but differ in
+        their level to avoid code duplication.
+    -)GameWinLogic: a helper class that SmartPlayerSettings also use (for GeniusPlayer and CleverPlayer
+        to determine their smart plays) but also the class Game uses inorder to determine if the game
+        ends since it's responsible for it, they share similar ideas and code, so i thought it's better
+        to extract them into one helper class also to avoid code duplication.
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    -)GameWinStreak: it's a helper (static) class that determines the win streak needed for all players,
+        so all players share this class and if the value changes in this class
+        (which determines the winning streak), this also changes for all players in order to win, which makes
+        it easier by just changing the value with one call and the requirement for a player to win changes
+        for the game.
