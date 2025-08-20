@@ -1,0 +1,92 @@
+bashar.rashed,yazan.saideh
+213541097,325919033
+
+1)  AsciiArtAlgorithm:
+   Handles the main logic of converting images into ASCII art and responsible for the implementation of
+   the steps: splitting the image into blocks, calculating brightness, matching characters, and
+   delegating output formatting.
+
+    AsciiOutput:
+   An interface that defines methods for outputting ASCII art.
+   classes like ConsoleAsciiOutput and HtmlAsciiOutput implement this interface to support
+   different output formats.
+
+    BlockSplitter
+   Responsible for dividing an image into smaller, square blocks. Each block is later analyzed to
+   determine its brightness and the corresponding ASCII character.
+
+    CharConverter:
+   Manages the mapping between brightness values and ASCII characters. Responsible for calculating
+   which ASCII character best represents a given brightness level.
+
+    ConsoleAsciiOutput:
+   Implements the AsciiOutput interface to output the ASCII art directly to the console (terminal).
+
+    HtmlAsciiOutput:
+    Implements the AsciiOutput interface to output the ASCII art as HTML.
+
+    Image:
+   Represents an image and provides access to pixel data.
+   Offers utility methods for image manipulation, such as getting pixel colors and dimensions.
+
+
+    KeyboardInput:
+   Handles input from the user via the keyboard for interacting with the application (scanner).
+
+    Shell:
+   Serves as the main user interface (command-line shell) for the program.
+   Handles the overall workflow, interprets user commands, and manages the application’s lifecycle.
+
+    SubImgCharMatcher:
+   Responsible for matching small image blocks to their best-fitting ASCII character based
+   on their brightness.
+
+2) We used a Treemap<double,priorityQueue> because the treemap automatically sorts the brightnesses,
+    the double represents the brightness, and the priority queue is for the ascii chars where it enables
+    multiple chars to have the same brightness but putting the first one as the lowest ascii char because
+    that's the one that we will always use in case of chars with same brightness.
+
+    we also used static map<character, double> to save the raw brightness for the charset, its straightforward
+    because it's the most suitable and quickest for look-up, and enables to save each character with it's
+    calculated raw brightness in <char,double> form, it's static to be able to save the charsets during a
+    run of the program for different runs of the algorithm because it was mentioned that each run requires a
+    different instance of asciiArtAlgorithm.
+
+    we used another static map <String,double[]>, The String key in this cache structure is a composite key,
+    formed by concatenating the image hash, resolution, and charset to create a unique identifier for each specific
+    combination of these parameters. The associated double[] value is an array that stores the normalized brightness
+    values for every character in the charset, with each index directly corresponding to a character’s position in
+    that charset. This design allows the cache to efficiently retrieve pre-computed normalized brightness values
+    for a particular image, resolution, and charset combination, eliminating the need to recalculate these values
+    when the same parameters are encountered again. By storing all the normalized values for an entire charset in a
+    single array, the cache enables rapid O(1) access to any character’s brightness value while maintaining the correct
+    order of characters. Additionally, this approach is more memory-efficient than using more complex data structures
+    to store individual values, making it an effective and high-performing solution for managing brightness
+    normalization data. (** we used a function that saves the "hashed-key" for the normalized brightness, the output
+    for it is a string of format: hashedimg:resolution:charset, where hashedimg is used to identify the processed
+    image).
+
+    and we used a 2d array to save the lastblockbrightness, and another 2d array to save all the blocks of the
+    image.
+
+3) The system uses a custom exception hierarchy centered on a base AsciiArtException class, with
+EmptyCharsetException (for empty or too-small charsets) and ImageProcessingException (for image processing errors)
+extending from it. SubImgCharMatcher throws EmptyCharsetException when necessary, and AsciiArtAlgorithm propagates
+these exceptions up the stack. The Shell class handles all exceptions centrally: it catches these exceptions,
+wraps IOExceptions in an ImageProcessingException when loading images, and displays user-friendly error messages
+for a variety of scenarios such as incorrect commands, format issues, or image path errors. This design ensures
+centralized, type-safe error handling and provides clear feedback to the user while keeping
+responsibilities well separated.
+
+4) we added to the API of SubImgCharMatcher a static function called setRoundingMode, which sets the rounding
+brightness as described in the shell, round up/round down/round abs (default), we chose this function to be static
+to encourage encapsulation towards the class, and instead of a static variable to be more safe and not allow outside
+classes to be able to change the values, and also make it unable to change to undefined values.
+
+
+5)we added one extra public function to the API of the image class which is called padToPowerOfTwo, which
+responsible for padding the image so the width and height become the powers of 2, and the reason for adding this
+because its the image class, and this is a function responsible for the dimensions of the image so putting it in
+another class would violate encapsulation, we explored the option to add a seperate utility class for this,
+but we thought it would be overusing classes for this purpose.
+
