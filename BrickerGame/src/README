@@ -1,0 +1,59 @@
+bashar.rashed,yazan.saideh
+213541097,325919033
+
+1) We chose the first option ( pass Gameobjects() to the basicCollisionStrategy and other strategies):
+    Pros: -)Easier and cleaner to understand, knowing where the brick removal is handled directly.
+          -)Supports encapsulation in some sense: it separates the removal of the brick from the manager,
+            and handles what kind of brick is built according to it (for future strategies)
+          -)Avoid making BrickerGameManager packed with strategies which it needs to handle each one,
+          making the code harder to debug and test.
+
+    Cons: -)Wrong use: if used improperly it can cause each strategy to access all gameobjects,
+           which can make it able to modify or remove other gameobjects out of it's responsibility.
+           -)Makes brick removal logic a bit more complicated, since we need to share a counter,
+           which the strategy will decrement then pass it back to the manager which updates
+           the game according to it.
+
+2) We created two classes: VisualHeart and NumericLivesCounter
+    VisualHeart Class: fully responsible for the visual representation of the number hearts on screen,
+    if it's losing or adding hearts, it will take care of it successfully.
+    NumericLivesCounter Class: fully responsible for the numeric representation of the numeric hearts on
+    screen, similar to the VisualHeart class, but its numeric, and both represent the correct number of hearts
+    numerically and visually.
+
+3) -) Pucks: we added PuckStrategy class that creates 2 pucks which are of type Ball that start in
+    random directions, to do that we create 2 Balls and we pass to the constructor the correct
+    png of the puck, and sound (same as main ball), the two pucks spawn on collision with the
+    brick that has this power-up.
+   -) Extra Paddle: we created the ExtraPaddleStrategy and ExtraPaddle Classes, the extraPaddle is a
+    GameObject and so we created a class that extends gameObject and it is fully responsible for extra
+    paddle behaviour, it is created because it is a separate gameobject that disappears after 4 hits,
+    while it can all be made inside the strategy only and be of type Paddle, but to create a separate
+    class for an extra paddle support single class responsibility and encapsulation for the future
+    of the game, and the strategy is only responsible for spawning the extraPaddle.
+   -)Turbo Mode: we only created a TurboStrategy Class, and similar to other strategies
+   it only activates when the brick is broken, and it checks if its only broken by the main ball.
+   -)Extra Heart: we created ExtraHeartStrategy and FallingHeart Classes, the Falling heart
+   is separate from the Visual Heart since they serve different purposes following encapsulation
+   and single principle class, the strategy is also similar to other strategies by creating a
+   Falling Heart gameobject on collision (brick broken which has the power-up).
+
+4) We created a DoubleStrategy Class which holds two special strategies at the same time for one brick,
+    and on collision with a brick with this power-up it simply calls their onCollision overridden method
+    from CollisionStrategy interface. For a brick to have 3 possible power-ups we use the help of
+    StrategyFactory which is responsible for creating a random power-up that the brick we build
+    in the BrickerGameManager uses, the factory has a 10% chance to land on double Strategy,
+    after landing on it, we divide it in half to ensure a 50/50 chance of having 3 or 2 power-ups
+    in a brick (all in all chane of double strategy that might make a brick have 2 or 3 power-ups is 10%,
+    5% for 2 power-ups, %5 for 3 power-ups). To ensure no more than 3 power-ups are in a brick, we define
+    a depth argument, and if we land on double strategy, we call a function that randomly generates
+    a power-up with depth+1, and in case we land on the 5% chance of 3 powers and the first
+    two powers (a and b in factory) are doubleStrategy, the depth will reach atleast 3 and so we
+    skip this by just making the brick a normal brick.
+
+5) We added in Ball Class extra functions setTurboBallImage and activateTurbo, since it does make sense
+    that the ball we make has a turboMode be ready to be activated in case of hitting a brick with that
+    power-up that only activates if it's only the mainBall.
+
+    We already talked about the numeric and visual classes we added to the api in point (2).
+
